@@ -74,8 +74,6 @@ Der Client ist eine minimalistische HTML‑Seite mit eingebettetem JavaScript:
 6. **Aufrufen**
    Öffnen Sie im Browser Ihres Netzwerks: `http://<raspberrypi>:3000/` und geben Sie eine Ziel‑URL ein.
 
-> **Tipp**: Für den Dauerbetrieb empfiehlt sich ein Prozessmanager wie `pm2` (`pm2 start server.js`).
-
 ---
 
 © 2025 Workshop Linux & Webtechnologien – Colin McMenamin & Dominik Schüepp
