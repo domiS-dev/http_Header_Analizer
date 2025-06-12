@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>HTTP-Sicherheitsheader Checker</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding: 2rem;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #111827;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+
+    .header-result {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      background-color: #f9fafb;
+    }
+
+    .ok {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .missing {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    footer {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      background-color: #f1f1f1;
+      color: #555;
+      border-top: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="container">
+      <h1>HTTP-Sicherheitsheader Analyse</h1>
+
+      <form id="checkForm">
+        <label for="urlInput">Gib eine vollständige URL ein:</label>
+        <input type="url" id="urlInput" placeholder="https://example.com" required>
+        <button type="submit">Analysieren</button>
+      </form>
+
+      <div id="result"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Workshop Linux und Webtechnologien, by Colin McMenamin, Dominik Schüepp</p>
+  </footer>
+
+  <script>
+    document.getElementById('checkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('urlInput').value;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Analyse läuft...';
+
+      try {
+        const res = await fetch('/api/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!res.ok) {
+          resultDiv.innerHTML = 'Fehler bei der Abfrage';
+          return;
+        }
+
+        const data = await res.json();
+        if (data.error) {
+          resultDiv.innerHTML = 'Fehler: ' + data.error;
+          return;
+        }
+
+        const headers = data.bewertung;
+        let output = `<div class="header-result"><h2>Ergebnisse für <code>${data.url}</code>:</h2><ul>`;
+        for (const [header, status] of Object.entries(headers)) {
+          const className = status === 'OK' ? 'ok' : 'missing';
+          output += `<li class="${className}">${header}: ${status}</li>`;
+        }
+        output += '</ul></div>';
+        resultDiv.innerHTML = output;
+      } catch (err) {
+        resultDiv.innerHTML = 'Anfrage fehlgeschlagen: ' + err;
+      }
+    });
+  </script>
+</body>
+</html>
